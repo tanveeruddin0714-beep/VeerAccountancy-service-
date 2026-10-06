@@ -1,0 +1,6 @@
+{
+  "name": "Veer Accountancy - Practical Accounting & Software Training Institute",
+  "description": "Learn practical accounting education and hands-on accounting software training in Excel, QuickBooks Online, Xero, and Zoho Books at Veer Accountancy.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

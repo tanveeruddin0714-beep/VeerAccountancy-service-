@@ -1,0 +1,99 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'tanveeruddin0714@gmail.com' ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    // Validate Admission Application
+    function isValidAdmission(data) {
+      return data.keys().hasAll([
+        'fullName', 'fatherName', 'phone', 'whatsapp', 'email',
+        'city', 'education', 'selectedCourse', 'preferredTiming',
+        'learningMode', 'accountingExperience', 'status', 'createdAt'
+      ]) &&
+      data.keys().hasOnly([
+        'fullName', 'fatherName', 'phone', 'whatsapp', 'email',
+        'city', 'education', 'selectedCourse', 'preferredTiming',
+        'learningMode', 'accountingExperience', 'status', 'createdAt',
+        'message'
+      ]) &&
+      data.fullName is string && data.fullName.size() >= 2 && data.fullName.size() <= 100 &&
+      data.fatherName is string && data.fatherName.size() >= 2 && data.fatherName.size() <= 100 &&
+      data.phone is string && data.phone.size() >= 5 && data.phone.size() <= 30 &&
+      data.whatsapp is string && data.whatsapp.size() >= 5 && data.whatsapp.size() <= 30 &&
+      data.email is string && data.email.size() >= 5 && data.email.size() <= 120 &&
+      data.city is string && data.city.size() >= 2 && data.city.size() <= 100 &&
+      data.education is string && data.education.size() >= 2 && data.education.size() <= 100 &&
+      data.selectedCourse is string && data.selectedCourse.size() >= 3 && data.selectedCourse.size() <= 120 &&
+      data.preferredTiming in ['Morning', 'Afternoon', 'Evening', 'Weekend'] &&
+      data.learningMode in ['Online', 'Physical'] &&
+      data.accountingExperience is string && data.accountingExperience.size() <= 100 &&
+      data.status in ['pending', 'contacted', 'enrolled'] &&
+      data.createdAt is string && data.createdAt.size() <= 50 &&
+      (!('message' in data) || (data.message is string && data.message.size() <= 1000));
+    }
+
+    // Validate Contact Inquiry
+    function isValidInquiry(data) {
+      return data.keys().hasAll(['name', 'message', 'status', 'createdAt']) &&
+      data.keys().hasOnly(['name', 'phone', 'email', 'message', 'status', 'createdAt']) &&
+      data.name is string && data.name.size() >= 2 && data.name.size() <= 100 &&
+      data.message is string && data.message.size() >= 2 && data.message.size() <= 1000 &&
+      data.status in ['new', 'responded'] &&
+      data.createdAt is string && data.createdAt.size() <= 50 &&
+      (!('phone' in data) || (data.phone is string && data.phone.size() <= 30)) &&
+      (!('email' in data) || (data.email is string && data.email.size() <= 120));
+    }
+
+    // Admissions collection
+    match /admissions/{admissionId} {
+      allow create: if isValidId(admissionId) && isValidAdmission(incoming());
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Inquiries collection
+    match /inquiries/{inquiryId} {
+      allow create: if isValidId(inquiryId) && isValidInquiry(incoming());
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Website Settings (Public read, admin write)
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Dynamic Courses Catalog (Public read, admin write)
+    match /courses_catalog/{courseId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+}

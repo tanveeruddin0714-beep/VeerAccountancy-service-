@@ -1,0 +1,103 @@
+{
+  "entities": {
+    "Admission": {
+      "title": "Admission Application",
+      "description": "Student enrollment application submitted via Veer Accountancy admission form",
+      "type": "object",
+      "properties": {
+        "fullName": { "type": "string", "maxLength": 100 },
+        "fatherName": { "type": "string", "maxLength": 100 },
+        "phone": { "type": "string", "maxLength": 30 },
+        "whatsapp": { "type": "string", "maxLength": 30 },
+        "email": { "type": "string", "maxLength": 120 },
+        "city": { "type": "string", "maxLength": 100 },
+        "education": { "type": "string", "maxLength": 100 },
+        "selectedCourse": { "type": "string", "maxLength": 120 },
+        "preferredTiming": { "type": "string", "enum": ["Morning", "Afternoon", "Evening", "Weekend"] },
+        "learningMode": { "type": "string", "enum": ["Online", "Physical"] },
+        "accountingExperience": { "type": "string", "maxLength": 100 },
+        "message": { "type": "string", "maxLength": 1000 },
+        "status": { "type": "string", "enum": ["pending", "contacted", "enrolled"] },
+        "createdAt": { "type": "string" }
+      },
+      "required": [
+        "fullName",
+        "fatherName",
+        "phone",
+        "whatsapp",
+        "email",
+        "city",
+        "education",
+        "selectedCourse",
+        "preferredTiming",
+        "learningMode",
+        "accountingExperience"
+      ]
+    },
+    "Inquiry": {
+      "title": "Contact Inquiry",
+      "description": "General question or inquiry sent from the contact section",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "maxLength": 100 },
+        "phone": { "type": "string", "maxLength": 30 },
+        "email": { "type": "string", "maxLength": 120 },
+        "message": { "type": "string", "maxLength": 1000 },
+        "status": { "type": "string", "enum": ["new", "responded"] },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["name", "message"]
+    },
+    "InstituteSettings": {
+      "title": "Institute Settings",
+      "description": "Public institute contact information, address, and announcement settings",
+      "type": "object",
+      "properties": {
+        "phone": { "type": "string", "maxLength": 50 },
+        "whatsapp": { "type": "string", "maxLength": 50 },
+        "email": { "type": "string", "maxLength": 120 },
+        "address": { "type": "string", "maxLength": 200 },
+        "timings": { "type": "string", "maxLength": 100 },
+        "announcement": { "type": "string", "maxLength": 300 },
+        "updatedAt": { "type": "string" }
+      }
+    },
+    "CourseItem": {
+      "title": "Course Item",
+      "description": "Dynamic course catalog item managed by admin",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 100 },
+        "title": { "type": "string", "maxLength": 150 },
+        "subtitle": { "type": "string", "maxLength": 250 },
+        "duration": { "type": "string", "maxLength": 100 },
+        "level": { "type": "string", "maxLength": 50 },
+        "mode": { "type": "string", "maxLength": 100 },
+        "fee": { "type": "string", "maxLength": 100 },
+        "category": { "type": "string", "maxLength": 100 },
+        "overview": { "type": "string", "maxLength": 1000 },
+        "topics": { "type": "array", "items": { "type": "string" } },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "title", "duration"]
+    }
+  },
+  "firestore": {
+    "/admissions/{admissionId}": {
+      "schema": "Admission",
+      "description": "Collection of student admission applications"
+    },
+    "/inquiries/{inquiryId}": {
+      "schema": "Inquiry",
+      "description": "Collection of public contact and inquiry messages"
+    },
+    "/settings/{settingId}": {
+      "schema": "InstituteSettings",
+      "description": "Website global configuration and contact details"
+    },
+    "/courses_catalog/{courseId}": {
+      "schema": "CourseItem",
+      "description": "Dynamic course offerings managed from admin backend"
+    }
+  }
+}
